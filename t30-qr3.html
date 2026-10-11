@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pasillo de pósters</title></head>
+<body>
+
+<style>
+/* Layout: one narrow phone-first column, a plum masthead strip, cards only for the choices and the reveal. */
+:root{
+  --plum:#2E2236; --coral:#E8613C; --violet:#6E4F86; --lilac:#F4F1F6;
+  --bg:#FBFAFC; --surface:#FFFFFF; --ink:#24192C; --muted:#6B5E75; --line:#E4DDEA;
+  --coral-ink:#B9441F; --ok:#2F7D5B; --ok-bg:#E6F3EC; --warn:#A35A00; --warn-bg:#FBF0DF; --bad:#B23A3A; --bad-bg:#F9E6E6;
+  --mast:#2E2236; --mast-ink:#F4F1F6;
+  --f-display:"Avenir Next","Segoe UI",system-ui,sans-serif; --f-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --f-data:ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17111C; --surface:#211A28; --ink:#F1ECF5; --muted:#B5A9BF; --line:#3A2F44; --lilac:#2A2133;
+  --coral-ink:#FF8A62; --ok:#7BD3A6; --ok-bg:#183327; --warn:#F2B661; --warn-bg:#352612; --bad:#F28B8B; --bad-bg:#3A1C1C;
+  --mast:#0F0B13; --mast-ink:#F1ECF5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17111C; --surface:#211A28; --ink:#F1ECF5; --muted:#B5A9BF; --line:#3A2F44; --lilac:#2A2133;
+  --coral-ink:#FF8A62; --ok:#7BD3A6; --ok-bg:#183327; --warn:#F2B661; --warn-bg:#352612; --bad:#F28B8B; --bad-bg:#3A1C1C;
+  --mast:#0F0B13; --mast-ink:#F1ECF5; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+.mast{background:var(--mast);color:var(--mast-ink);padding:14px 16px}
+.mast .in{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font:700 13px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.brand b{color:var(--coral)}
+.tag{font:500 12px/1 var(--f-data);letter-spacing:.06em;opacity:.8}
+main{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 56px;display:grid;gap:22px}
+.eyebrow{font:600 12px/1.2 var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink)}
+h1{font:700 clamp(25px,6vw,34px)/1.15 var(--f-display);margin:6px 0 0;text-wrap:balance;letter-spacing:-.01em}
+h2{font:700 20px/1.25 var(--f-display);margin:0;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--muted);font-size:18px}
+.fict{font:500 12px/1.4 var(--f-data);color:var(--muted);border:1px dashed var(--line);padding:6px 10px;border-radius:6px;justify-self:start}
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;padding:14px 16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;font:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
+.choice:hover{border-color:var(--violet)}
+.choice:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.choice .k{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 14px/1 var(--f-display);background:var(--lilac);color:var(--violet)}
+.choice[aria-pressed="true"]{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 22%,transparent)}
+.choice[aria-pressed="true"] .k{background:var(--coral);color:#fff}
+.choice:disabled{cursor:default}
+.choice small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.reveal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.verdict{font:700 14px/1.2 var(--f-display);letter-spacing:.04em;text-transform:uppercase;padding:6px 10px;border-radius:999px;justify-self:start}
+.v-ok{background:var(--ok-bg);color:var(--ok)} .v-warn{background:var(--warn-bg);color:var(--warn)} .v-bad{background:var(--bad-bg);color:var(--bad)}
+.big{font:800 clamp(54px,16vw,88px)/1 var(--f-display);color:var(--coral-ink);letter-spacing:-.03em}
+.cite{font-size:13px;color:var(--muted)}
+.cite a{color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:12px;border:0;background:var(--coral);color:#fff;font:700 16px/1 var(--f-display);text-decoration:none;cursor:pointer}
+.btn:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--violet);border:1.5px solid var(--violet)}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.vote{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:10px}
+.vote p{color:var(--muted);font-size:15px}
+.cohort{display:grid;gap:12px}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:15px}
+.bar .track{grid-column:1/-1;height:10px;border-radius:5px;background:var(--lilac);overflow:hidden}
+.bar .fill{height:100%;background:var(--violet);border-radius:5px}
+.bar.mine .fill{background:var(--coral)}
+.bar .n{font:500 14px/1.4 var(--f-data);color:var(--muted);font-variant-numeric:tabular-nums}
+.empty{background:var(--lilac);border-radius:12px;padding:16px;color:var(--muted);font-size:15px}
+.step{font:600 13px/1 var(--f-data);color:var(--muted)}
+textarea,input,select{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea:focus,input:focus,select:focus{outline:3px solid color-mix(in srgb,var(--coral) 40%,transparent);border-color:var(--coral)}
+label{font-weight:600}
+.foot{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes rise{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}
+.reveal:not([hidden]){animation:rise .35s ease-out}
+</style>
+<header class="mast"><div class="in"><span class="brand">Diplomatura <b>MAXIA</b></span><span class="tag">T30 · QR3</span></div></header>
+<main>
+
+<div><p class="eyebrow">Caminá por el pasillo</p>
+<h1>Mirá los tres pósters cinco segundos. ¿Frente a cuál te detendrías?</h1></div>
+
+<style>
+.posters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.posters{grid-template-columns:1fr}}
+.pst{aspect-ratio:3/4;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;color:#2E2236;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;font-family:var(--f-body)}
+@media (max-width:520px){.pst{aspect-ratio:auto;min-height:340px}}
+.pst .t{font:700 9px/1.2 var(--f-display)}
+.pst .tx{font-size:5.5px;line-height:1.35;color:#555}
+.pst .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex:1}
+.pst .mini{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:1}
+.pst .ch{background:#EEE;border-radius:3px;position:relative}
+.pst .cl{font:800 16px/1.05 var(--f-display);color:#2E2236}
+.pst .hero{flex:1;display:flex;align-items:flex-end;gap:10px;padding:6px 10px 0;border-bottom:1.5px solid #2E2236}
+.pst .hb{flex:1;border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;font:800 13px/1.6 var(--f-display);color:#fff}
+.pst .qr{width:26px;height:26px;background:repeating-linear-gradient(90deg,#2E2236 0 3px,#fff 3px 5px),#2E2236;align-self:flex-end;border-radius:2px}
+@media (max-width:520px){.pst .tx{font-size:9px}.pst .t{font-size:13px}.pst .cl{font-size:24px}}
+</style>
+<div class="posters">
+ <figure style="margin:0"><div class="pst" aria-label="Póster A: seis bloques de texto denso">
+  <div class="t">ANÁLISIS RETROSPECTIVO DE PACIENTES CON HEMORRAGIA DIGESTIVA ALTA EN UN CENTRO DEL NOA SEGÚN EL TIEMPO HASTA LA ENDOSCOPÍA</div>
+  <div class="cols"><div class="tx"><b>Introducción</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div><div class="tx"><b>Métodos</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div><div class="tx"><b>Resultados</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div><div class="tx"><b>Discusión</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div><div class="tx"><b>Limitaciones</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div><div class="tx"><b>Bibliografía</b><br>Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. Se incluyeron pacientes adultos internados por hemorragia digestiva alta en el período de estudio. Se registraron variables demográficas, clínicas, de laboratorio y endoscópicas. Las variables continuas se expresaron como media y desvío estándar y las categóricas como porcentaje. </div></div></div><figcaption class="step" style="margin-top:6px">PÓSTER A</figcaption></figure>
+ <figure style="margin:0"><div class="pst" aria-label="Póster B: muchos gráficos sin jerarquía">
+  <div class="t">HDA y endoscopía: resultados de nuestra serie</div>
+  <div class="mini"><div class="ch" style="background:linear-gradient(to top,#6E4F86 40%,#EEE 40%)"></div><div class="ch" style="background:linear-gradient(to top,#E8613C 65%,#EEE 65%)"></div><div class="ch" style="background:linear-gradient(to top,#999 30%,#EEE 30%)"></div><div class="ch" style="background:linear-gradient(to top,#2E2236 55%,#EEE 55%)"></div><div class="ch" style="background:linear-gradient(to top,#E8613C 80%,#EEE 80%)"></div><div class="ch" style="background:linear-gradient(to top,#6E4F86 20%,#EEE 20%)"></div></div></div><figcaption class="step" style="margin-top:6px">PÓSTER B</figcaption></figure>
+ <figure style="margin:0"><div class="pst" aria-label="Póster C: un titular-afirmación y un gráfico">
+  <div class="cl">Endoscopía en menos de 24 h: menos de la mitad de resangrado en nuestra serie</div>
+  <div class="hero"><div class="hb" style="height:28%;background:#6E4F86">7,7%</div><div class="hb" style="height:70%;background:#E8613C">19%</div></div>
+  <div class="tx" style="display:flex;justify-content:space-between;gap:6px"><span>&lt; 24 h (n = 78) · &gt; 24 h (n = 42)<br>Serie retrospectiva, un centro. Asociación, no causalidad.</span><span class="qr"></span></div>
+  </div><figcaption class="step" style="margin-top:6px">PÓSTER C</figcaption></figure>
+</div>
+<p class="fict">Los tres pósters muestran el estudio HDA-9J: ficticio, con fines docentes.</p>
+
+<div class="choices" id="g1"><button class="choice" type="button" data-k="A" aria-pressed="false"><span class="k">A</span><span>Póster A</span></button><button class="choice" type="button" data-k="B" aria-pressed="false"><span class="k">B</span><span>Póster B</span></button><button class="choice" type="button" data-k="C" aria-pressed="false"><span class="k">C</span><span>Póster C</span></button></div>
+<div style="display:grid;gap:8px"><label for="first">¿Qué fue lo primero que leíste? <span style="font-weight:400;color:var(--muted)">(opcional, pocas palabras)</span></label>
+<input id="first" maxlength="80" placeholder="Por ejemplo: el 19%"></div>
+<section class="reveal" id="rv" hidden>
+  <span class="verdict v-ok">No hay respuesta oficial</span>
+  <p>Hay respuesta de tu cohorte. Fijate qué leyeron primero los demás: eso es la primera capa del póster en acción, lo que se lee en tres segundos.</p>
+  <p>Los factores que vuelven atractivo un póster para los expertos son el contenido científico, los gráficos y el uso limitado de palabras.</p>
+  <p class="cite">Goodhand JR, et al. Clin Med (Lond). 2011;11(2):138-41. <a href="https://doi.org/10.7861/clinmedicine.11-2-138" target="_blank" rel="noopener noreferrer">doi:10.7861/clinmedicine.11-2-138</a></p>
+</section>
+<section class="vote"><h2>Registrá tu voto</h2><p>Se abre un formulario con tu respuesta ya cargada: solo tocás «Registrar mi voto».</p><div class="row"><a class="btn" id="vb" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">Registrar mi voto</a></div></section><section class="cohort"><h2>Así votó tu cohorte</h2><div id="co"></div></section>
+
+<p class="foot">Actividad de la Diplomatura MAXIA · Módulo 5 · Dr. Abel Novillo. El voto es anónimo: no se pide nombre ni correo.</p>
+</main>
+<script type="application/json" id="cohort">{}</script>
+
+<script>
+const COHORT = JSON.parse(document.getElementById('cohort').textContent);
+const FORM = "https://form.jotform.com/262828591284064";
+function voteUrl(clase, act, resp){
+  const q = new URLSearchParams({q2_textbox0:clase, q3_textbox1:act, q4_textbox2:resp});
+  return FORM + '?' + q.toString();
+}
+function setVote(a, clase, act, resp){
+  a.href = voteUrl(clase, act, resp);
+  a.removeAttribute('aria-disabled');
+}
+function renderCohort(el, key, labels, mine){
+  const d = COHORT[key];
+  const total = d ? Object.values(d.counts).reduce((s,v)=>s+v,0) : 0;
+  if(!total){
+    el.innerHTML = '<div class="empty">Todavía no hay votos consolidados. Los resultados de tu cohorte se publican en esta misma página y se actualizan una vez por día durante la semana de la clase.</div>';
+    return;
+  }
+  const rows = Object.keys(labels).map(k=>{
+    const n = d.counts[k]||0, pct = Math.round(100*n/total);
+    return `<div class="bar${k===mine?' mine':''}"><span>${labels[k]}${k===mine?' · tu respuesta':''}</span><span class="n">${pct}% · ${n}</span><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+  el.innerHTML = `<div class="bars">${rows}</div><p class="cite">${total} votos · actualizado ${d.updated||''}</p>`;
+}
+function pickGroup(container, onPick){
+  const btns = [...container.querySelectorAll('.choice')];
+  btns.forEach(b=>b.addEventListener('click',()=>{
+    if(container.dataset.locked) return;
+    btns.forEach(x=>x.setAttribute('aria-pressed', x===b?'true':'false'));
+    onPick(b.dataset.k, b);
+  }));
+  return {lock(){container.dataset.locked='1'; btns.forEach(x=>x.disabled = x.getAttribute('aria-pressed')!=='true');}};
+}
+</script>
+<script>
+
+const vb=document.getElementById('vb'), first=document.getElementById('first');
+const L={"A": "P\u00f3ster A", "B": "P\u00f3ster B", "C": "P\u00f3ster C"}; let pick=null;
+renderCohort(document.getElementById('co'),'poster',L,null);
+function upd(){ if(pick) setVote(vb,'T30','QR3',pick+(first.value.trim()?' | '+first.value.trim():'')); }
+first.addEventListener('input',upd);
+pickGroup(document.getElementById('g1'),(k)=>{
+  pick=k; document.getElementById('rv').hidden=false; upd();
+  renderCohort(document.getElementById('co'),'poster',L,k);
+});
+
+</script>
+</body></html>
