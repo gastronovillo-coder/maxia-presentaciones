@@ -1,0 +1,393 @@
+<title>La charla que se vive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one full-width "stage" per scene, cinematic dark (deliberate single theme), progress rail with acts on top. */
+:root{
+  --night:#17111C; --plum:#2E2236; --plum-2:#3A2C45; --coral:#E8613C; --violet:#8E6BB0; --lilac:#F4F1F6;
+  --ink:#F4F1F6; --muted:#B9ADC4; --line:#4A3B57; --ok:#7BD3A6; --warn:#F2B661; --bad:#F28B8B;
+  --f-display:"Sora",system-ui,sans-serif; --f-body:"Source Sans 3",system-ui,sans-serif; --f-data:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--night);color:var(--ink);font:400 18px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(23,17,28,.92);backdrop-filter:blur(8px);padding:10px 16px;border-bottom:1px solid var(--line)}
+.rail .in{max-width:880px;margin:0 auto;display:grid;gap:8px}
+.rail .top{display:flex;justify-content:space-between;gap:4px 12px;align-items:center;flex-wrap:wrap}
+.brand{font:700 12px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.brand b{color:var(--coral)}
+.where{font:500 12px/1.3 var(--f-data);color:var(--muted)}
+.dots{display:flex;gap:4px}
+.dots i{flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .3s}
+.dots i.on{background:var(--coral)} .dots i.done{background:var(--violet)} .dots i.gap{flex:0 0 6px;background:transparent}
+main{max-width:880px;margin:0 auto;padding-inline:16px;padding-block:28px 72px}
+.scene{display:grid;gap:22px;animation:in .45s ease-out}
+@keyframes in{from{opacity:.3;transform:translateY(10px)}to{opacity:1;transform:none}}
+.eyebrow{font:600 12px/1.3 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--coral)}
+h1{font:800 clamp(34px,7vw,64px)/1.02 var(--f-display);margin:0;letter-spacing:-.02em;text-wrap:balance}
+h2{font:700 clamp(23px,4.2vw,34px)/1.14 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h3{font:700 18px/1.3 var(--f-display);margin:0}
+p{margin:0;max-width:64ch}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 22px;border-radius:14px;border:0;background:var(--coral);color:#fff;font:700 17px/1 var(--f-display);cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.small{padding:10px 14px;font-size:14px}
+.btn:focus-visible,.opt:focus-visible,.chip:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+.btn[disabled]{opacity:.4;cursor:default}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.clip{position:relative;aspect-ratio:16/9;max-width:100%;width:100%;border-radius:18px;overflow:hidden;background:radial-gradient(120% 90% at 70% 20%,#4b2f5e 0%,#24182d 55%,#140e19 100%);border:1px solid var(--line)}
+.clip iframe,.clip video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.clip .ph{position:absolute;inset:0;display:grid;place-items:center}
+.clip .play{width:72px;height:72px;border-radius:50%;background:var(--coral);display:grid;place-items:center;box-shadow:0 10px 40px rgba(232,97,60,.35)}
+.clip .play:before{content:"";border-left:22px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.clip .tag{position:absolute;left:12px;top:12px;font:600 11px/1 var(--f-data);letter-spacing:.06em;background:rgba(0,0,0,.5);padding:7px 9px;border-radius:7px;color:var(--lilac)}
+.clip .script{position:absolute;left:12px;right:12px;bottom:12px;font-size:14px;line-height:1.4;background:rgba(0,0,0,.6);padding:10px 12px;border-radius:10px;color:var(--lilac);max-height:62%;overflow:auto}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:15px 18px;border-radius:14px;border:1.5px solid var(--line);background:var(--plum);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .2s,background .2s}
+.opt:hover{border-color:var(--violet)}
+.opt .k{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 14px/1 var(--f-display);background:var(--plum-2);color:var(--lilac)}
+.opt.picked{border-color:var(--coral);background:var(--plum-2)} .opt.picked .k{background:var(--coral);color:#fff}
+.opt.right{border-color:var(--ok)} .opt.right .k{background:var(--ok);color:#10261b}
+.opt:disabled{cursor:default}
+.panel{background:var(--plum);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:12px}
+.theory{background:linear-gradient(135deg,#2a1f33,#231a2b);border:1px solid #5b4670;border-radius:18px;padding:20px;display:grid;gap:10px}
+.theory .eyebrow{color:var(--violet)}
+.verdict{font:700 13px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;padding:7px 11px;border-radius:999px;justify-self:start}
+.v-ok{background:#183327;color:var(--ok)} .v-warn{background:#352612;color:var(--warn)} .v-bad{background:#3A1C1C;color:var(--bad)}
+.cite{font-size:13px;color:var(--muted)}
+.big{font:800 clamp(64px,15vw,120px)/.9 var(--f-display);letter-spacing:-.04em;color:var(--coral)}
+.gtrack{position:relative;height:64px;border-radius:14px;background:var(--plum);border:1px solid var(--line);overflow:hidden;touch-action:none;cursor:ew-resize}
+.gfill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--violet),#a785c8);width:50%}
+.gtruth{position:absolute;top:0;bottom:0;width:4px;background:var(--coral);opacity:0;transition:opacity .4s}
+.gtruth.on{opacity:1}
+.gtruth span{position:absolute;top:6px;left:8px;font:700 13px/1 var(--f-data);color:var(--coral);white-space:nowrap}
+.glabel{position:absolute;right:14px;top:50%;transform:translateY(-50%);font:800 28px/1 var(--f-display)}
+input[type=range]{width:100%;accent-color:var(--coral)}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--plum);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+input[type=text]:focus,textarea:focus{outline:3px solid rgba(232,97,60,.4);border-color:var(--coral)}
+label{font-weight:600;display:grid;gap:6px}
+.tl{position:relative;height:96px;border-radius:14px;background:var(--plum);border:1px solid var(--line);cursor:crosshair}
+.tl .axis{position:absolute;left:16px;right:16px;top:58px;height:2px;background:var(--line)}
+.tl .tick{position:absolute;top:66px;font:500 11px/1 var(--f-data);color:var(--muted);transform:translateX(-50%)}
+.tl .mk{position:absolute;top:22px;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:var(--coral);display:grid;place-items:center;font:700 12px/1 var(--f-display);color:#fff}
+.tl .gap{position:absolute;top:52px;height:14px;border-radius:7px;background:rgba(242,139,139,.35)}
+.chart{width:100%;height:auto;max-width:100%}
+.chart text{fill:var(--muted);font:500 12px var(--f-data)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kv div{background:var(--plum);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kv b{display:block;font:800 30px/1 var(--f-display);color:var(--coral);font-variant-numeric:tabular-nums}
+.kv span{font-size:14px;color:var(--muted)}
+.bars{display:grid;gap:12px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+.bar .track{grid-column:1/-1;height:14px;border-radius:7px;background:var(--plum-2);overflow:hidden}
+.bar .fill{height:100%;border-radius:7px;background:var(--violet);width:0;transition:width .9s ease-out}
+.bar .n{font:700 15px/1.4 var(--f-data);color:var(--lilac)}
+.chips{display:grid;gap:10px}
+.chip{display:flex;justify-content:space-between;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--plum);color:var(--ink);font:inherit;cursor:pointer}
+.chip em{font:600 12px/1 var(--f-data);font-style:normal;padding:6px 9px;border-radius:999px;background:var(--plum-2);color:var(--muted);white-space:nowrap}
+.chip.ok{border-color:var(--ok)} .chip.no{border-color:var(--bad)}
+.card{background:var(--plum);border:1px solid var(--line);border-radius:18px;padding:22px;display:grid;gap:14px;min-height:170px}
+.card .q{font:700 22px/1.25 var(--f-display)}
+.path{display:grid;gap:10px}
+.path div{display:flex;gap:12px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px}
+.path b{font:700 12px/1.3 var(--f-data);color:var(--coral);min-width:92px}
+pre{white-space:pre-wrap;background:#0f0b13;border:1px solid var(--line);border-radius:14px;padding:16px;font:500 14px/1.5 var(--f-data);color:var(--lilac);margin:0}
+.note{font:500 12px/1.4 var(--f-data);color:var(--muted);border:1px dashed var(--line);padding:8px 10px;border-radius:8px}
+.steps{display:grid;gap:10px;counter-reset:s}
+.steps .chip{justify-content:flex-start}
+.steps .num{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--plum-2);font:700 13px/1 var(--f-display);color:var(--lilac)}
+.steps .chip.set .num{background:var(--coral);color:#fff}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--plum)}
+summary{cursor:pointer;font-weight:600}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="rail"><div class="in"><div class="top"><span class="brand">MAXIA <b>T31</b> · La charla que se vive</span><span class="where" id="where"></span></div><div class="dots" id="dots"></div></div></header>
+<main id="stage"></main>
+<script type="application/json" id="clips">{"C01": {"titulo": "Apertura del avatar", "escena": 1, "dur": "0:40", "plano": "Avatar con tu cara y tu voz, mismo fondo y ropa que el resto de los clips. Lo genera la plataforma de avatar a partir de este texto.", "guion": "Buenas noches. Soy el Dr. Abel Novillo, especialista en Medicina Interna y Gastroenterología, Past President del Grupo Argentino de Crohn y Colitis Ulcerosa y Director Médico del Sanatorio 9 de Julio de Tucumán. Bienvenidos a la última clase del módulo de presentaciones. Hoy vamos a ver cómo lograr que una charla médica no se escuche: que se viva. Y para eso, vamos a empezar por algo que capaz no esperaban.", "yt": "", "mp4": ""}, "C02A": {"titulo": "Te engañó", "escena": 1, "dur": "0:50", "plano": "Vos, en cámara, plano medio, tono cómplice.", "guion": "Tranquilo, no sos el único. Lo que viste hace un minuto no era yo: era un avatar hecho con inteligencia artificial a partir de unos minutos de video. Me llevó menos tiempo que buscar la campera. Y fijate lo que significa: si cuarenta segundos alcanzan para engañar a un médico atento, imaginá lo que hace un falso especialista con un paciente en redes. Por eso hoy vamos a hablar de interacción, pero también de honestidad. Seguí.", "yt": "", "mp4": ""}, "C02B": {"titulo": "Bien visto", "escena": 1, "dur": "0:50", "plano": "Vos, en cámara, plano medio, tono de reconocimiento.", "guion": "Bien visto. Era un avatar, hecho con inteligencia artificial a partir de unos minutos de video. Pocos lo detectan a la primera. Quedate con lo que te hizo dudar, porque esa es la habilidad que van a necesitar tus pacientes frente a videos falsos de médicos vendiendo productos. Hoy vamos a usar estas herramientas, y vamos a aprender a usarlas avisando siempre. Seguí.", "yt": "", "mp4": ""}, "C03": {"titulo": "El contrato de la clase", "escena": 2, "dur": "1:00", "plano": "Vos, en cámara.", "guion": "Esta clase es distinta a las dos anteriores. No la vas a mirar: la vas a jugar. Son cuarenta y cinco minutos, en cuatro actos. Primero, por qué la interacción enseña, con evidencia. Segundo, cómo se diseña una charla viva. Tercero, video y avatar, con sus reglas. Y cuarto, cómo armamos esta misma clase y cómo vos armás la tuya. En cada escena vas a hacer algo. Al final te muestro todo tu recorrido. Antes de arrancar, elegí qué querés llevarte.", "yt": "", "mp4": ""}, "C04": {"titulo": "Por qué preguntar antes de mostrar", "escena": 3, "dur": "1:00", "plano": "Vos, en cámara.", "guion": "Lo que acabás de hacer tiene nombre: es una pregunta de predicción. Te pedí que apostaras antes de mostrarte el dato. ¿Por qué funciona? Porque al apostar generás una expectativa, y cuando el dato la confirma o la contradice, el cerebro lo marca como importante. El que apostó cincuenta y vio veintiséis, no se olvida más ese número. Es la herramienta más barata que existe: una pregunta, cuatro opciones y diez segundos. La vamos a usar varias veces en esta clase.", "yt": "", "mp4": ""}, "C05": {"titulo": "La clase magistral como placebo", "escena": 4, "dur": "1:10", "plano": "Vos, en cámara.", "guion": "En investigación educativa pasó algo curioso: la clase magistral terminó siendo el grupo control. El placebo contra el que se compara todo lo demás. El metaanálisis más grande que tenemos reunió doscientos veinticinco estudios en carreras de ciencias. Con aprendizaje activo, los alumnos rindieron casi medio desvío estándar más en los exámenes, y con clase magistral la probabilidad de reprobar fue una vez y media mayor. Los autores llegaron a preguntarse si es ético seguir usando la clase magistral como control. No es educación médica pura, pero el efecto se repite en todas las disciplinas.", "yt": "", "mp4": ""}, "C06": {"titulo": "Lo que enseña es la pregunta", "escena": 5, "dur": "1:00", "plano": "Vos, en cámara. Esta es la idea central de la clase: decila lento.", "guion": "Esta es la escena que me gustaría que te lleves. En educación médica continua, votar con un sistema de respuesta mejoró el aprendizaje frente a la clase didáctica. Pero frente a una clase que integra preguntas, sin aparato, no hubo diferencia. O sea: el aparato no cura. Cura el principio activo, y el principio activo es obligar al cerebro a responder. La inteligencia artificial no cambia eso. Lo que cambia es que armar buenas preguntas, casos y simuladores ahora te lleva minutos.", "yt": "", "mp4": ""}, "C07": {"titulo": "Acabás de hacer práctica de recuperación", "escena": 6, "dur": "1:10", "plano": "Vos, en cámara.", "guion": "Te hice trampa. Esa pregunta sobre la escena tres no era para evaluarte: era para que recuperaras algo de la memoria. Se llama práctica de recuperación. En estudiantes de medicina aleatorizados, los que estudiaron respondiendo preguntas retuvieron a los seis meses el doble que los que solo releyeron el tema: cuarenta contra veinte por ciento. Cada vez que tu público tiene que traer algo de la memoria, ese algo queda más fijo. Una charla interactiva es, en el fondo, una charla con pequeños exámenes disfrazados.", "yt": "", "mp4": ""}, "C08": {"titulo": "El ritmo: cada diez minutos", "escena": 7, "dur": "0:50", "plano": "Vos, en cámara.", "guion": "De todo esto sale una regla práctica de diseño. No es un dato de un estudio: es un criterio que usamos en la Clase 29. Cada ocho a diez minutos, el público tiene que hacer algo. Votar, decidir, calcular, adivinar antes de ver el resultado. Lo que sea, pero algo. Si en diez minutos tu público no hizo nada, se fue al celular, y no a votar.", "yt": "", "mp4": ""}, "C09": {"titulo": "Dos mundos de interacción", "escena": 8, "dur": "0:50", "plano": "Vos, en cámara.", "guion": "Hay dos mundos. En vivo, en un congreso o un ateneo, trescientas personas votan al mismo tiempo y el resultado aparece en la pantalla. En asincrónico, como esta clase, cada uno juega cuando la abre, y la clase se adapta a lo que elige. Son dos mundos distintos y los dos te van a tocar. Lo que los une es que la interacción tiene que ser parte del contenido, no un adorno pegado al final.", "yt": "", "mp4": ""}, "C10": {"titulo": "La pregunta en la que te podés equivocar", "escena": 9, "dur": "0:50", "plano": "Vos, en cámara.", "guion": "La mejor pregunta de encuesta es aquella en la que el público se puede equivocar. «¿Les gustó la charla?» no enseña nada. «¿Qué porcentaje de las referencias que da la IA no existen?», antes de mostrar el dato, enseña. Y un truco: el distractor tiene que ser el error más común de tus colegas, porque ahí está la enseñanza. Las preguntas no las tenés que inventar solo: tu guion maestro ya las tiene adentro, y la IA las saca en un minuto.", "yt": "", "mp4": ""}, "C11": {"titulo": "Debrief del caso", "escena": 10, "dur": "1:20", "plano": "Vos, en cámara. Si querés, un clip por cada opción de la decisión 2.", "guion": "Hablemos del paciente. En la primera decisión, la trampa es el alta: con un Glasgow-Blatchford de trece no se va a ninguna casa. En la segunda, la intuición más común es «cuanto antes, mejor». Pero en un ensayo con quinientos dieciséis pacientes de alto riesgo, la endoscopía en menos de seis horas no redujo la mortalidad frente a la hecha entre seis y veinticuatro. Las guías piden dentro de las veinticuatro horas, ya estabilizado. Y fijate en el formato: un caso que decidís vos enseña razonamiento clínico, sobre todo cuando cada decisión tiene su feedback.", "yt": "", "mp4": ""}, "C12": {"titulo": "El gráfico que se usa", "escena": 11, "dur": "0:50", "plano": "Vos, en cámara, o grabación de pantalla moviendo el control.", "guion": "Esto que en una clase clásica son tres diapositivas y una fórmula que nadie mira, acá es un control que movés. Mismo tratamiento, misma reducción relativa: con riesgo basal bajo necesitás tratar a cien para evitar un evento; con riesgo alto, a diez. Cuando el público lo mueve, lo entiende. Esto se arma con un prompt, sin programar, y se proyecta o se abre desde el celular.", "yt": "", "mp4": ""}, "C13": {"titulo": "El avatar: doble de riesgo", "escena": 12, "dur": "1:10", "plano": "Vos, en cámara.", "guion": "¿Se aprende igual con un avatar? Hay dos estudios chicos, y hay que leerlos como pilotos. En un ensayo cruzado, el aprendizaje fue igual con avatar que con presentador humano, pero la experiencia fue mejor con el humano. En un curso de inducción en otorrino, dos de cada tres no notaron diferencia en lo aprendido. Mi lectura: el avatar transmite información; el humano transmite confianza. Por eso el avatar es tu doble de riesgo: hace las escenas repetibles, y vos hacés las importantes. Y siempre, siempre, se avisa que es IA.", "yt": "", "mp4": ""}, "C14": {"titulo": "Cómo grabé estos clips", "escena": 13, "dur": "1:20", "plano": "Vos, en cámara, mostrando la notebook o el celular en el trípode.", "guion": "Te cuento la cocina. Ninguno de estos clips dura más de un minuto y medio. Los grabé uno por uno, con la cámara a la altura de los ojos, luz de frente y una ventana nunca atrás. Leí el guion dos veces antes y lo dije mirando a la lente, no a la pantalla. Si me trababa, regrababa ese clip solo, no la clase entera. Después los subí a YouTube como no listados y pegué el código de cada uno en la página. Cuarenta y cinco minutos de clase, y no grabé ni veinte minutos de video.", "yt": "", "mp4": ""}, "C15": {"titulo": "Detrás de escena de esta clase", "escena": 14, "dur": "1:10", "plano": "Vos, en cámara, o grabación de pantalla recorriendo los pasos.", "guion": "Esta clase la armamos con el mismo método de la 29. Primero el objetivo: que salgas sabiendo diseñar una charla donde el público hace algo. Después el guion maestro, escena por escena, con la evidencia verificada en PubMed. Recién entonces le pedí a Claude que convirtiera el guion en esta página: un solo archivo HTML, publicado gratis en GitHub Pages, que se abre en cualquier celular. Y por último grabé los clips. Contenido primero, envase después. Siempre.", "yt": "", "mp4": ""}, "C16": {"titulo": "Cierre", "escena": 16, "dur": "0:50", "plano": "Vos, en cámara, plano un poco más cerrado.", "guion": "Llegaste al final, y no escuchaste una clase: la hiciste. Apostaste, ordenaste, decidiste sobre un paciente, moviste un gráfico y armaste tu propio prompt. Ahora te toca a vos: una diapositiva viva en tu próxima charla. Con una alcanza para no volver a dar una charla muerta. El público no vino a verte hablar: vino a pensar con vos. Nos vemos en la próxima charla. La de ustedes.", "yt": "", "mp4": ""}}</script>
+
+<script>
+const CLIPS = JSON.parse(document.getElementById('clips').textContent);
+const ACTS = ['Apertura','Acto 1 · Por qué','Acto 2 · Cómo se diseña','Acto 3 · Video y avatar','Acto 4 · De esta clase a la tuya'];
+const S = { i:0, avatar:null, goal:null, guess:50, placebo:null, order:[], recall:null, marks:[], sort:{}, fix:null, distr:null, d1:null, d2:null, gbs:null, nnt:null, nntq:null, swipe:{}, setup:{}, yt:null, bsteps:[], format:null, tema:'', dato:'' };
+const stage=document.getElementById('stage');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function clip(id){
+  const c=CLIPS[id]; if(!c) return '';
+  if(c.yt) return `<div class="clip"><iframe src="https://www.youtube-nocookie.com/embed/${esc(c.yt)}?rel=0&modestbranding=1" title="${esc(c.titulo)}" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
+  if(c.mp4) return `<div class="clip"><video src="${esc(c.mp4)}" controls playsinline preload="metadata"></video></div>`;
+  return `<div class="clip" role="img" aria-label="Video: ${esc(c.titulo)}"><div class="ph"><div class="play"></div></div><span class="tag">VIDEO ${id} · ${c.dur} · ${esc(c.titulo)}</span></div><details><summary>Guion de este video (lo que dice el Dr.)</summary><p class="muted" style="margin-top:8px">${esc(c.guion)}</p></details>`;
+}
+function theory(title, body, cite){ return `<div class="theory"><p class="eyebrow">Fundamento</p><h3>${title}</h3><p>${body}</p>${cite?`<p class="cite">${cite}</p>`:''}</div>`; }
+function opts(id,list){ return `<div class="opts" id="${id}">`+list.map(([k,t])=>`<button class="opt" type="button" data-k="${k}"><span class="k">${k}</span><span>${t}</span></button>`).join('')+`</div>`; }
+function bindOpts(id,cb,right){ const box=$(id), bs=[...box.querySelectorAll('.opt')];
+  bs.forEach(b=>b.onclick=()=>{ if(box.dataset.l) return; box.dataset.l=1; bs.forEach(x=>{x.disabled=true; x.classList.toggle('picked',x===b); if(right&&x.dataset.k===right) x.classList.add('right');}); cb(b.dataset.k); }); }
+function nextBtn(label='Seguir'){ return `<div class="row"><button class="btn" type="button" onclick="go(1)">${label} →</button></div>`; }
+function go(d){ S.i=Math.max(0,Math.min(SC.length-1,S.i+d)); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function fillBars(){ requestAnimationFrame(()=>document.querySelectorAll('.bar .fill[data-w]').forEach(f=>f.style.width=f.dataset.w)); }
+function bars(rows,max){ return `<div class="bars">`+rows.map(([l,v,col])=>`<div class="bar"><span>${l}</span><span class="n">${v}%</span><div class="track"><div class="fill" data-w="${100*v/max}%" style="background:${col||'var(--violet)'}"></div></div></div>`).join('')+`</div>`; }
+
+/* Each scene: act, minutes, html(), after() */
+const SC=[];
+const add=(act,min,html,after)=>SC.push({act,min,html,after});
+
+/* 1 · ¿Quién te habla? */
+add(0,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 1 · ¿Quién te habla?</p>
+  ${clip('C01')}
+  <h2>El que acaba de hablarte, ¿era el Dr. Novillo o su avatar hecho con IA?</h2>
+  ${opts('o1',[['A','Era él, en persona'],['B','Era un avatar']])}
+  <div id="r1"></div></section>`,
+()=>bindOpts('o1',k=>{S.avatar=k; $('r1').innerHTML=`<div class="panel"><span class="verdict ${k==='B'?'v-ok':'v-bad'}">${k==='B'?'Bien visto':'Te engañó'}</span>${clip(k==='B'?'C02B':'C02A')}
+  <p>Cada alumno ve un video distinto según lo que eligió. Eso es lo primero que una clase grabada puede hacer y una clase en vivo no.</p></div>${nextBtn()}`;}));
+
+/* 2 · Contrato */
+add(0,2,()=>`<section class="scene">
+  <p class="eyebrow">Escena 2 · El contrato de esta clase</p>
+  ${clip('C03')}
+  <h2>¿Qué querés llevarte de estos 45 minutos?</h2>
+  ${opts('o2',[['A','Entender por qué la interacción enseña, con evidencia'],['B','Diseñar mi próxima charla con momentos interactivos'],['C','Aprender a usar video y avatar sin perder credibilidad'],['D','Armar con IA una diapositiva que se use, no que se mire']])}
+  <div id="r2"></div></section>`,
+()=>bindOpts('o2',k=>{S.goal=k; $('r2').innerHTML=`<div class="panel"><p><b>Objetivo de la clase:</b> que salgas sabiendo diseñar una charla donde el público hace algo cada pocos minutos, y armar con IA al menos una pieza interactiva.</p>
+  <p class="muted">Pensar: que la interacción es el mecanismo por el que se aprende. Sentir: que una charla viva está a tu alcance sin programar. Hacer: convertir una diapositiva de tu próxima charla en una experiencia interactiva.</p>
+  <p>Anotado tu objetivo: al final vemos si lo cumpliste.</p></div>${nextBtn('Empezar el Acto 1')}`;}));
+
+/* 3 · Apuesta */
+add(1,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 3 · Apostá antes de ver el dato</p>
+  <h2>Arrastrá la barra: ¿qué porcentaje de las referencias que dio GPT-4 no existían?</h2>
+  <div class="gtrack" id="gt"><div class="gfill" id="gf"></div><div class="gtruth" id="gtr" style="left:26%"><span>Real: 26%</span></div><span class="glabel" id="gl">50%</span></div>
+  <input type="range" id="gr" min="0" max="100" value="50" aria-label="Tu apuesta en porcentaje">
+  <div class="row"><button class="btn" type="button" id="gb">Apostar</button></div>
+  <div id="r3"></div></section>`,
+()=>{ const gf=$('gf'),gl=$('gl'),gr=$('gr'),gt=$('gt');
+  const set=v=>{v=Math.max(0,Math.min(100,Math.round(v)));S.guess=v;gf.style.width=v+'%';gl.textContent=v+'%';gr.value=v;};
+  gr.oninput=()=>set(+gr.value); const drag=e=>{const r=gt.getBoundingClientRect();set(100*(e.clientX-r.left)/r.width);};
+  gt.onpointerdown=e=>{gt.setPointerCapture(e.pointerId);drag(e);gt.onpointermove=drag;}; gt.onpointerup=()=>gt.onpointermove=null;
+  $('gb').onclick=e=>{e.target.disabled=true;gr.disabled=true;gt.onpointerdown=null;$('gtr').classList.add('on'); const d=S.guess-26;
+    $('r3').innerHTML=`<div class="panel"><div class="big">26%</div><p>${Math.abs(d)<=8?'Le pegaste cerca.':d>0?'Apostaste '+d+' puntos por encima: sos más desconfiado que el dato.':'Apostaste '+(-d)+' puntos por debajo: le tenías más fe a la IA de la que merece.'}</p>
+    <p class="cite">Jain A, Merchant Y. Oral Maxillofac Surg. 2026;30(1). 500 referencias verificadas. Dato de la Clase 29.</p></div>
+    ${clip('C04')}${theory('Pregunta de predicción','Al apostar, el alumno genera una expectativa; cuando el dato la confirma o la contradice, la sorpresa marca el contenido como importante. Es la intervención interactiva más barata: una pregunta y diez segundos, siempre antes de mostrar el dato.')}${nextBtn()}`;};
+});
+
+/* 4 · Placebo */
+add(1,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 4 · La clase magistral como placebo</p>
+  <h2>Un metaanálisis de 225 estudios comparó clase magistral con aprendizaje activo. Con clase magistral, la probabilidad de reprobar fue…</h2>
+  ${opts('o4',[['A','Igual'],['B','1,5 veces mayor'],['C','3 veces mayor'],['D','Menor: la clase magistral rinde más']])}
+  <div id="r4"></div></section>`,
+()=>bindOpts('o4',k=>{S.placebo=k; $('r4').innerHTML=`<div class="panel"><span class="verdict ${k==='B'?'v-ok':'v-warn'}">${k==='B'?'Exacto':'El dato es 1,5 veces'}</span>
+  <div class="kv"><div><b>+0,47 DE</b><span>en exámenes con aprendizaje activo</span></div><div><b>1,5×</b><span>más probabilidad de reprobar con clase magistral</span></div></div>
+  <p class="cite">Freeman S, et al. Proc Natl Acad Sci U S A. 2014;111(23):8410-5.</p></div>${clip('C05')}${nextBtn()}`;},'B'));
+
+/* 5 · Ordenar brazos */
+const ARMS={A:'Clase didáctica',B:'Clase con clickers',C:'Clase interactiva con preguntas integradas (sin aparato)'};
+add(1,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 5 · La vuelta de tuerca</p>
+  <h2>Ordená de mejor a peor aprendizaje: tocá las tres en el orden que creas.</h2>
+  <div class="steps" id="arms">${Object.entries(ARMS).map(([k,t])=>`<button class="chip" type="button" data-k="${k}"><span class="num">·</span><span>${t}</span></button>`).join('')}</div>
+  <div class="row"><button class="btn ghost small" type="button" id="armr">Empezar de nuevo</button></div>
+  <div id="r5"></div></section>`,
+()=>{ const box=$('arms'), cs=[...box.querySelectorAll('.chip')];
+  const draw=()=>cs.forEach(c=>{const i=S.order.indexOf(c.dataset.k);c.classList.toggle('set',i>=0);c.querySelector('.num').textContent=i>=0?i+1:'·';});
+  cs.forEach(c=>c.onclick=()=>{ if(S.order.length===3||S.order.includes(c.dataset.k)) return; S.order.push(c.dataset.k); draw();
+    if(S.order.length===3){ const ok=S.order[2]==='A';
+      $('r5').innerHTML=`<div class="panel"><span class="verdict ${ok?'v-ok':'v-warn'}">${ok?'Bien: la didáctica va última':'Mirá dónde quedó la didáctica'}</span>
+      <div class="kv"><div><b>1.º</b><span>Clickers · empate</span></div><div><b>1.º</b><span>Preguntas integradas · empate</span></div><div><b>3.º</b><span>Clase didáctica</span></div></div>
+      <p><b>Clickers y preguntas integradas empatan.</b> Los dos superan a la clase didáctica. La sorpresa: el aparato no agrega nada si la clase ya hace preguntas.</p>
+      <p class="cite">Grzeskowiak LE, et al. J Contin Educ Health Prof. 2015;35(4):261-9. Revisión de 17 estudios en posgrado y educación continua.</p></div>${clip('C06')}${nextBtn()}`; } });
+  $('armr').onclick=()=>{S.order=[];draw();$('r5').innerHTML='';}; draw(); });
+
+/* 6 · Recuperación */
+add(1,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 6 · Sin mirar para atrás</p>
+  <h2>¿Qué porcentaje de referencias inexistentes dio GPT-4 en la escena 3?</h2>
+  ${opts('o6',[['A','14%'],['B','26%'],['C','41%'],['D','No me acuerdo']])}
+  <div id="r6"></div></section>`,
+()=>bindOpts('o6',k=>{S.recall=k; $('r6').innerHTML=`<div class="panel"><span class="verdict ${k==='B'?'v-ok':'v-warn'}">${k==='B'?'Lo recuperaste':'Era 26%'}</span>
+  <p>Retención a seis meses en estudiantes de medicina aleatorizados:</p>
+  ${bars([['Testeo con explicación',40,'var(--coral)'],['Autoexplicación',29],['Solo estudiar',20]],50)}
+  <p class="cite">Larsen DP, Butler AC, Roediger HL. Med Educ. 2013;47(7):674-82.</p></div>${clip('C07')}
+  ${theory('Por qué responder enseña más que escuchar','Tres mecanismos: la recuperación fija lo que se trae de la memoria; la generación (apostar, decidir) compromete al alumno con una respuesta; y el feedback inmediato corrige el error en el momento en que importa. La pasividad no activa ninguno de los tres.')}${nextBtn('Pasar al Acto 2')}`; fillBars();},'B'));
+
+/* 7 · Timeline */
+add(2,2,()=>`<section class="scene">
+  <p class="eyebrow">Escena 7 · Diseñá el ritmo</p>
+  <h2>Tenés una charla de 30 minutos. Tocá la línea para poner tres momentos en que el público hace algo.</h2>
+  <div class="tl" id="tl"><div class="axis"></div></div>
+  <div class="row"><button class="btn ghost small" type="button" id="tlc">Borrar</button><button class="btn" type="button" id="tlb" disabled>Evaluar mi charla</button></div>
+  <div id="r7"></div></section>`,
+()=>{ const tl=$('tl'),b=$('tlb'),pad=16; const pos=m=>`calc(${pad}px + (100% - ${2*pad}px) * ${m/30})`;
+  for(let m=0;m<=30;m+=5) tl.insertAdjacentHTML('beforeend',`<span class="tick" style="left:${pos(m)}">${m}'</span>`);
+  const draw=()=>{tl.querySelectorAll('.mk,.gap').forEach(n=>n.remove()); const p=[0,...S.marks.slice().sort((a,b)=>a-b),30];
+    for(let i=0;i<p.length-1;i++) if(p[i+1]-p[i]>10) tl.insertAdjacentHTML('beforeend',`<span class="gap" style="left:${pos(p[i])};width:calc((100% - ${2*pad}px) * ${(p[i+1]-p[i])/30})"></span>`);
+    S.marks.forEach((m,i)=>tl.insertAdjacentHTML('beforeend',`<span class="mk" style="left:${pos(m)}">${i+1}</span>`)); b.disabled=S.marks.length<3;};
+  tl.onclick=e=>{ if(S.marks.length>=3) return; const r=tl.getBoundingClientRect(); S.marks.push(Math.round(Math.max(0,Math.min(30,30*(e.clientX-r.left-pad)/(r.width-2*pad))))); draw(); };
+  $('tlc').onclick=()=>{S.marks=[];draw();$('r7').innerHTML='';};
+  b.onclick=()=>{ const p=[0,...S.marks.slice().sort((a,b)=>a-b),30]; let mx=0; for(let i=0;i<p.length-1;i++) mx=Math.max(mx,p[i+1]-p[i]);
+    $('r7').innerHTML=`<div class="panel"><span class="verdict ${mx<=10?'v-ok':'v-warn'}">${mx<=10?'Charla viva':'Hay un pozo de '+mx+' minutos'}</span>
+    <p>${mx<=10?'Nunca dejás al público más de diez minutos solo escuchando.':'Las franjas rojas son tramos de más de diez minutos sin interacción: ahí se van al celular.'}</p></div>${clip('C08')}${nextBtn()}`; };
+  draw(); });
+
+/* 8 · Clasificar */
+const ITEMS=[['Votación simultánea con resultado en pantalla','vivo'],['Caso ramificado por QR que cada uno juega a su ritmo','ambas'],['Video distinto según lo que elige el alumno','asinc'],['Nube de palabras para medir el prejuicio de la sala','vivo'],['Calculadora en el celular del público','ambas'],['Demo de IA en vivo frente al público','vivo']];
+const CAT={vivo:'En vivo',asinc:'Asincrónica',ambas:'Las dos'}, NEXT={undefined:'vivo',vivo:'asinc',asinc:'ambas',ambas:'vivo'};
+add(2,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 8 · Dos mundos de interacción</p>
+  <h2>¿Dónde funciona cada formato? Tocá cada uno hasta que muestre su mundo.</h2>
+  <div class="chips" id="cats">${ITEMS.map(([t],i)=>`<button class="chip" type="button" data-i="${i}"><span>${t}</span><em>Tocá</em></button>`).join('')}</div>
+  <div class="row"><button class="btn" type="button" id="catb">Corregir</button></div>
+  <div id="r8"></div></section>`,
+()=>{ const cs=[...$('cats').querySelectorAll('.chip')];
+  cs.forEach(c=>c.onclick=()=>{ if($('cats').dataset.l) return; const i=c.dataset.i; S.sort[i]=NEXT[S.sort[i]]; c.querySelector('em').textContent=CAT[S.sort[i]]; });
+  $('catb').onclick=e=>{ $('cats').dataset.l=1; e.target.disabled=true; let ok=0; cs.forEach(c=>{const i=c.dataset.i, r=ITEMS[i][1]===S.sort[i]; ok+=r; c.classList.add(r?'ok':'no'); if(!r) c.querySelector('em').textContent=CAT[ITEMS[i][1]];});
+    S.sortOk=ok; $('r8').innerHTML=`<div class="panel"><span class="verdict ${ok>=5?'v-ok':'v-warn'}">${ok} de 6</span><p>Las que muestran su mundo correcto en verde. Lo asincrónico tiene una ventaja que el vivo no: puede adaptarse a cada persona.</p></div>${clip('C09')}${nextBtn()}`; };
+});
+
+/* 9 · Arreglar la pregunta */
+add(2,2,()=>`<section class="scene">
+  <p class="eyebrow">Escena 9 · Arreglá esta pregunta</p>
+  <h2>Un colega cierra su charla de hipertensión con «¿Les gustó la charla?». ¿Qué pregunta la reemplaza mejor?</h2>
+  ${opts('o9',[['A','«¿Les pareció útil la charla? Sí / No»'],['B','«Antes de mostrarles el dato: ¿qué porcentaje de hipertensos de Argentina sabe que es hipertenso?»'],['C','«¿Tienen alguna pregunta?»']])}
+  <div id="r9"></div></section>`,
+()=>bindOpts('o9',k=>{S.fix=k; $('r9').innerHTML=`<div class="panel"><span class="verdict ${k==='B'?'v-ok':'v-warn'}">${k==='B'?'Esa enseña':'Esa no enseña nada'}</span><p>La buena pregunta tiene un dato detrás y el público se puede equivocar. Ahora elegí el mejor distractor para esa pregunta:</p>
+  ${opts('o9b',[['A','«El 100%»'],['B','La cifra que la mayoría de los médicos cree, aunque esté equivocada'],['C','«No sé»']])}<div id="r9b"></div></div>`;
+  bindOpts('o9b',k2=>{S.distr=k2; $('r9b').innerHTML=`<p><b>${k2==='B'?'Exacto.':'Mejor la B.'}</b> El distractor que enseña es el error más común de tus colegas: cuando lo eligen y ven el dato, se corrige el error que importa.</p>${clip('C10')}
+  <details><summary>Prompt para que la IA te escriba las preguntas</summary><pre>Con este guion, escribí 3 preguntas de opción múltiple para hacerle al público: una de predicción antes de mostrar un dato, una de decisión clínica y una de cierre. Cada una con 4 opciones, un distractor que refleje el error más común y una explicación de dos líneas para después de votar.</pre></details>${nextBtn()}`;},'B');},'B'));
+
+/* 10 · Caso */
+const F1={A:['v-bad','Rama trampa','El alta temprana es segura solo con Glasgow-Blatchford de 0 o 1.'],B:['v-ok','Bien decidido','Taquicárdico, Hb 9,8 y urea alta: internación, reanimación e IBP endovenoso.'],C:['v-warn','Razonable, pero de más','La terapia intensiva queda para el shock que no responde a la reanimación.']};
+const F2={A:['v-warn','La intuición más común','En 516 pacientes de alto riesgo, la endoscopía en menos de 6 h no redujo la mortalidad frente a la de 6 a 24 h (8,9% vs 6,6%).'],B:['v-ok','Bien decidido','ACG y ESGE: endoscopía dentro de las 24 h, ya estabilizado.'],C:['v-bad','Demasiado tarde','Con score 13, esperar 48 a 72 horas expone a resangrado sin tratar.']};
+add(2,4,()=>`<section class="scene">
+  <p class="eyebrow">Escena 10 · Guardia, 23:40 h · caso ficticio</p>
+  <h2>Hombre de 58 años, melena de dos días, ibuprofeno por lumbalgia. Sin síncope ni hepatopatía.</h2>
+  <div class="kv"><div><b>108</b><span>FC (lpm)</span></div><div><b>100/62</b><span>TA (mmHg)</span></div><div><b>9,8</b><span>Hb (g/dL)</span></div><div><b>70</b><span>Urea (mg/dL)</span></div></div>
+  <p><b>Decisión 1.</b> ¿Qué hacés con el paciente?</p>
+  ${opts('o10',[['A','Alta con IBP y endoscopía ambulatoria'],['B','Internación en sala: reanimar, IBP EV y estratificar'],['C','Ingreso directo a terapia intensiva']])}
+  <div id="r10"></div></section>`,
+()=>bindOpts('o10',k=>{S.d1=k; const [c,v,t]=F1[k];
+  $('r10').innerHTML=`<div class="panel"><span class="verdict ${c}">${v}</span><p>${t}</p></div>
+  <div class="panel"><p class="eyebrow">El score se arma ítem por ítem</p><div class="kv" id="gk"></div><div class="big" id="gn">0</div><p class="muted">Glasgow-Blatchford. 0 a 1: manejo ambulatorio posible.</p></div>
+  <p><b>Decisión 2.</b> Tras 1000 mL de cristaloides: FC 92, TA 112/70. ¿Cuándo hacés la endoscopía?</p>
+  ${opts('o10b',[['A','Urgente, en menos de 6 h'],['B','Dentro de las 24 h, ya estabilizado'],['C','Programada a las 48–72 h']])}<div id="r10b"></div>`;
+  let sum=0; [['Urea 11,7 mmol/L',4],['Hb 9,8 (varón)',6],['TAS 100',1],['FC ≥ 100',1],['Melena',1]].forEach(([l,p],i)=>setTimeout(()=>{sum+=p;$('gk')&&$('gk').insertAdjacentHTML('beforeend',`<div><b>+${p}</b><span>${l}</span></div>`);$('gn')&&($('gn').textContent=sum);S.gbs=sum;},500+i*550));
+  bindOpts('o10b',k2=>{S.d2=k2; const [c2,v2,t2]=F2[k2]; $('r10b').innerHTML=`<div class="panel"><span class="verdict ${c2}">${v2}</span><p>${t2}</p>
+  <p class="cite">Laine L, et al. Am J Gastroenterol. 2021;116(5):899-917 · Gralnek IM, et al. Endoscopy. 2021;53(3):300-32 · Lau JYW, et al. N Engl J Med. 2020;382(14):1299-308 · Blatchford O, et al. Lancet. 2000;356:1318-21.</p></div>
+  ${clip('C11')}${theory('Por qué un caso ramificado','Decidir sobre un paciente virtual mejora conocimiento y razonamiento clínico frente a no intervenir (tamaños del efecto 0,94 y 0,80). Frente a otras buenas formas de enseñar la diferencia es chica, y funciona mejor con feedback en cada decisión y casos contrastados.','Cook DA, Erwin PJ, Triola MM. Acad Med. 2010;85(10):1589-602.')}${nextBtn()}`;});
+}));
+
+/* 11 · NNT */
+add(2,2,()=>`<section class="scene">
+  <p class="eyebrow">Escena 11 · La diapositiva que se usa</p>
+  <h2>Desafío: mové el riesgo basal hasta que el NNT llegue a 20.</h2>
+  <svg class="chart" id="ch" viewBox="0 0 640 260" role="img" aria-label="NNT según riesgo basal"></svg>
+  <input type="range" id="rb" min="2" max="40" value="4" aria-label="Riesgo basal en porcentaje">
+  <div class="kv"><div><b id="rbv">4%</b><span>riesgo basal</span></div><div><b id="nntv">100</b><span>NNT con reducción relativa del 25%</span></div></div>
+  <p class="muted">Ejemplo ilustrativo, no un fármaco real. NNT = 1 / (riesgo basal × reducción relativa).</p>
+  <div id="r11"></div></section>`,
+()=>{ const svg=$('ch'),r=$('rb'); const X=v=>50+(v-2)/38*560, Y=n=>220-Math.min(n,100)/100*190;
+  let path=''; for(let v=2;v<=40;v+=.5) path+=(v===2?'M':'L')+X(v).toFixed(1)+' '+Y(1/(v/100*.25)).toFixed(1);
+  const ticks=[2,10,20,30,40].map(v=>`<text x="${X(v)}" y="244" text-anchor="middle">${v}%</text>`).join('')+[0,50,100].map(n=>`<text x="40" y="${Y(n)+4}" text-anchor="end">${n}</text><line x1="50" x2="610" y1="${Y(n)}" y2="${Y(n)}" stroke="#4A3B57" stroke-dasharray="3 4"/>`).join('');
+  let done=false; const upd=()=>{const v=+r.value,n=Math.round(1/(v/100*.25)); S.nnt=n; $('rbv').textContent=v+'%'; $('nntv').textContent=n;
+    svg.innerHTML=ticks+`<path d="${path}" fill="none" stroke="#8E6BB0" stroke-width="3"/><circle cx="${X(v)}" cy="${Y(n)}" r="9" fill="#E8613C"/><text x="${Math.min(X(v)+14,540)}" y="${Y(n)-12}" style="fill:#F4F1F6;font-weight:700">NNT ${n}</text>`;
+    if(n===20&&!done){done=true; $('r11').innerHTML=`<div class="panel"><span class="verdict v-ok">Lo encontraste: riesgo basal 20%</span><p>Mismo tratamiento, mismo efecto relativo: cuadruplicar el riesgo basal divide el NNT por cuatro. Moviéndolo se entiende en segundos lo que una fórmula no logra en tres diapositivas.</p></div>${clip('C12')}${nextBtn('Pasar al Acto 3')}`;}};
+  r.oninput=upd; upd(); });
+
+/* 12 · Swipe avatar */
+const CARDS=[['La bienvenida de un curso online','si'],['Comunicarle una mala noticia a un paciente','no'],['Las instrucciones de una tarea, repetidas cada cohorte','si'],['Un consentimiento informado','no'],['La misma pieza educativa traducida a otro idioma','si']];
+add(3,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 12 · ¿Avatar sí o no?</p>
+  <h2>Decidí rápido: ¿esto lo puede decir tu avatar?</h2>
+  <div class="card" id="card"></div>
+  <div class="row"><button class="btn ghost" type="button" id="sno">No, me pongo yo</button><button class="btn" type="button" id="ssi">Sí, mi avatar</button></div>
+  <div id="r12"></div></section>`,
+()=>{ let i=0, ok=0; const show=()=>{ $('card').innerHTML=`<p class="eyebrow">${i+1} de ${CARDS.length}</p><p class="q">${CARDS[i][0]}</p>`; };
+  const ans=a=>{ if(i>=CARDS.length) return; S.swipe[i]=a; if(CARDS[i][1]===a) ok++; i++; if(i<CARDS.length) show(); else { $('sno').disabled=$('ssi').disabled=true; S.swipeOk=ok;
+    $('card').innerHTML=`<p class="q">${ok} de ${CARDS.length} bien</p><p>Regla: si el mensaje necesita que el otro te crea, ponete vos. Si es información que se repite, que la diga tu doble. Y siempre se avisa que es IA, con tu propia cara y tu propia voz, nunca la de un colega o un paciente.</p>`;
+    $('r12').innerHTML=`${clip('C13')}${theory('Qué dice la evidencia del avatar','Dos pilotos chicos: en un ensayo cruzado con 13 estudiantes el aprendizaje fue igual con avatar que con presentador humano, pero la experiencia fue mejor con el humano; en un curso de inducción en otorrino, el 67% no notó diferencia en lo aprendido.','Reichert M, et al. JMIR Form Res. 2026;10:e90037 · Siddique H, Maweni R. Cureus. 2025;17(10):e94230.')}${nextBtn()}`; } };
+  $('sno').onclick=()=>ans('no'); $('ssi').onclick=()=>ans('si'); show(); });
+
+/* 13 · Grabar e integrar */
+const SET=[['Cámara',[['A','A la altura de los ojos','ok'],['B','Desde abajo, apoyada en la mesa','no']]],['Luz',[['A','Ventana detrás tuyo','no'],['B','Luz de frente, pareja','ok']]],['Mirada',[['A','A la lente de la cámara','ok'],['B','A tu imagen en la pantalla','no']]]];
+add(3,4,()=>`<section class="scene">
+  <p class="eyebrow">Escena 13 · Grabalo bien y metelo en la clase</p>
+  <h2>Armá tu set: elegí una opción en cada fila.</h2>
+  ${SET.map(([t,o],j)=>`<div><p class="eyebrow" style="color:var(--muted)">${t}</p>${opts('s13_'+j,o.map(([k,l])=>[k,l]))}</div>`).join('')}
+  <div id="r13"></div></section>`,
+()=>{ let n=0; SET.forEach(([t,o],j)=>bindOpts('s13_'+j,k=>{ S.setup[j]=o.find(x=>x[0]===k)[2]; n++; if(n===3){ const ok=Object.values(S.setup).filter(x=>x==='ok').length;
+  $('r13').innerHTML=`<div class="panel"><span class="verdict ${ok===3?'v-ok':'v-warn'}">${ok} de 3</span><p>Cámara a la altura de los ojos, luz de frente y mirada a la lente. Clips de menos de un minuto y medio, uno por escena: si te trabás, regrabás ese solo.</p></div>
+  ${clip('C14')}
+  <div class="panel"><h3>Probalo: pegá el link de un video de YouTube</h3><p class="muted">Así se integra cada clip: lo subís a YouTube como «no listado», copiás el link y la página saca el código sola.</p>
+  <label>Link de YouTube<input type="text" id="yt" placeholder="https://youtu.be/…"></label><div id="ytp"></div></div>${nextBtn('Pasar al Acto 4')}`;
+  $('yt').oninput=e=>{ const m=e.target.value.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); S.yt=m?m[1]:null;
+    $('ytp').innerHTML=m?`<p>Código del video: <b style="font-family:var(--f-data)">${m[1]}</b>. Este es el dato que va en la página. En la versión publicada, el video aparece acá mismo:</p><pre>"yt": "${m[1]}"</pre>`:''; }; }}, SET[j][1].find(x=>x[2]==='ok')[0])); });
+
+/* 14 · Detrás de escena */
+const BUILD=[['Objetivo','Qué tiene que saber hacer el alumno al salir'],['Guion maestro','Escena por escena, con la evidencia verificada en PubMed'],['Prompt a Claude','«Convertí este guion en una página interactiva de un solo archivo HTML»'],['Publicación','GitHub Pages: gratis, permanente, abre en cualquier celular'],['Grabación','Clips cortos, uno por escena, pegados en la página']];
+add(4,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 14 · Detrás de escena de esta clase</p>
+  <h2>¿En qué orden armamos esta clase? Tocá los pasos en orden.</h2>
+  <div class="steps" id="bs">${[3,0,4,1,2].map(i=>`<button class="chip" type="button" data-i="${i}"><span class="num">·</span><span><b>${BUILD[i][0]}</b> · <span class="muted">${BUILD[i][1]}</span></span></button>`).join('')}</div>
+  <div class="row"><button class="btn ghost small" type="button" id="bsr">Empezar de nuevo</button></div>
+  <div id="r14"></div></section>`,
+()=>{ const cs=[...$('bs').querySelectorAll('.chip')]; const draw=()=>cs.forEach(c=>{const k=S.bsteps.indexOf(+c.dataset.i);c.classList.toggle('set',k>=0);c.querySelector('.num').textContent=k>=0?k+1:'·';});
+  cs.forEach(c=>c.onclick=()=>{ if(S.bsteps.length===5||S.bsteps.includes(+c.dataset.i)) return; S.bsteps.push(+c.dataset.i); draw();
+    if(S.bsteps.length===5){ const ok=S.bsteps.every((v,i)=>v===i);
+    $('r14').innerHTML=`<div class="panel"><span class="verdict ${ok?'v-ok':'v-warn'}">${ok?'Ese es el orden':'El orden real: objetivo, guion, prompt, publicación, grabación'}</span><p>Contenido primero, envase después: el mismo método de la Clase 29. El video va al final, cuando ya sabés qué tiene que decir cada clip.</p>
+    <details><summary>El prompt con el que se armó esta página</summary><pre>Convertí este guion maestro en una clase interactiva de un solo archivo HTML, para abrir en el celular. Una escena por pantalla, con barra de progreso. Cada escena tiene un video corto (YouTube no listado) y una interacción: apuesta antes del dato, ordenar, clasificar, caso ramificado con feedback, gráfico con control deslizante. Lo que elige el alumno cambia el video que ve. Al final, mostrale su recorrido. Paleta violeta y coral, letra grande, sin datos de pacientes reales.</pre></details></div>${clip('C15')}${nextBtn()}`; } });
+  $('bsr').onclick=()=>{S.bsteps=[];draw();$('r14').innerHTML='';}; draw(); });
+
+/* 15 · Constructor */
+const FMT={A:['una pregunta de predicción','Con este tema y este dato, escribí una pregunta de predicción para hacerle al público antes de mostrar el dato: 4 opciones, un distractor con el error más común de los médicos y una explicación de dos líneas para después de votar.'],B:['un caso ramificado','Con este tema, armá un caso clínico ramificado en una página interactiva de un solo archivo HTML para el celular: dos decisiones con tres opciones cada una, una consecuencia y un feedback de dos líneas por opción, usando este dato en el feedback. Letra grande, sin datos de pacientes reales.'],C:['una diapositiva-app','Con este tema, armá una página interactiva de un solo archivo HTML con un control deslizante que muestre cómo cambia el resultado cuando cambia una variable, usando este dato como punto de partida. Fórmula y referencia al pie. Para proyectar y para abrir desde el celular.']};
+add(4,3,()=>`<section class="scene">
+  <p class="eyebrow">Escena 15 · Tu diapositiva viva</p>
+  <h2>Armá el prompt de tu próxima charla.</h2>
+  ${opts('o15',[['A','Una pregunta para apostar antes del dato'],['B','Un caso donde el público decide'],['C','Un gráfico que se mueve']])}
+  <label>Tema de tu charla<input type="text" id="tema" placeholder="Por ejemplo: anticoagulación en fibrilación auricular"></label>
+  <label>Un dato que quieras que no se olviden<input type="text" id="dato" placeholder="Por ejemplo: la mitad de los pacientes no recibe anticoagulación"></label>
+  <div class="row"><button class="btn" type="button" id="mk">Armar mi prompt</button></div>
+  <div id="r15"></div></section>`,
+()=>{ let f=null; [...$('o15').querySelectorAll('.opt')].forEach(b=>b.onclick=()=>{f=b.dataset.k;[...$('o15').querySelectorAll('.opt')].forEach(x=>x.classList.toggle('picked',x===b));});
+  $('mk').onclick=()=>{ S.tema=$('tema').value.trim(); S.dato=$('dato').value.trim(); if(!f){$('r15').innerHTML='<p class="muted">Elegí primero un formato.</p>';return;} S.format=f;
+    const p=`Tema: ${S.tema||'[tu tema]'}\nDato: ${S.dato||'[tu dato]'}\n\n${FMT[f][1]}`;
+    $('r15').innerHTML=`<div class="panel"><p class="eyebrow">Tu prompt, listo para pegar en Claude</p><pre id="pp">${esc(p)}</pre><div class="row"><button class="btn ghost small" type="button" id="cp">Copiar prompt</button></div>
+    <p><b>Tarea 31:</b> armá ${FMT[f][0]}, probala en tu celular y mandá el link con tres líneas: qué hace el público, en qué minuto de la charla y qué aprende al hacerlo. Por diplomaturamaxia@gmail.com, jueves 5/11 antes de las 20 h, asunto «Tarea 31 – Apellido, Nombre».</p></div>${nextBtn('Ver mi recorrido')}`;
+    $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(p);e.target.textContent='Copiado';}catch{const r=document.createRange();r.selectNodeContents($('pp'));getSelection().removeAllRanges();getSelection().addRange(r);e.target.textContent='Seleccionado: copialo';}}; }; });
+
+/* 16 · Recorrido */
+add(4,2,()=>{ const G={A:'entender por qué la interacción enseña',B:'diseñar tu próxima charla con momentos interactivos',C:'usar video y avatar sin perder credibilidad',D:'armar con IA una diapositiva que se use'};
+  const L1={A:'alta',B:'internación en sala',C:'terapia intensiva'},L2={A:'endoscopía en menos de 6 h',B:'endoscopía dentro de las 24 h',C:'endoscopía a las 48–72 h'};
+  const n=[S.avatar,S.goal,S.guess!==50||true,S.placebo,S.order.length===3,S.recall,S.marks.length===3,S.sortOk!=null,S.fix,S.d1,S.d2,S.nnt===20,S.swipeOk!=null,Object.keys(S.setup).length===3,S.bsteps.length===5,S.format].filter(Boolean).length;
+  return `<section class="scene">
+  <p class="eyebrow">Escena 16 · Tu recorrido</p>
+  <h1>Hiciste ${n} cosas en esta clase. No escuchaste ninguna.</h1>
+  <div class="path">
+   <div><b>Objetivo</b><span>Querías ${G[S.goal]||'llevarte algo concreto'}.</span></div>
+   <div><b>Escena 1</b><span>Dijiste que era ${S.avatar==='B'?'un avatar, y acertaste':'el Dr. en persona, y era un avatar'}.</span></div>
+   <div><b>Escenas 3 y 6</b><span>Apostaste ${S.guess}% y después ${S.recall==='B'?'recordaste el 26%':'no recuperaste el 26%'}.</span></div>
+   <div><b>Escena 7</b><span>Interacciones en los minutos ${S.marks.slice().sort((a,b)=>a-b).join(', ')||'—'}.</span></div>
+   <div><b>Escena 8</b><span>Clasificaste bien ${S.sortOk??'—'} de 6 formatos.</span></div>
+   <div><b>Escena 10</b><span>${L1[S.d1]||'—'}, después ${L2[S.d2]||'—'}. Score: ${S.gbs??'—'}.</span></div>
+   <div><b>Escena 12</b><span>Acertaste ${S.swipeOk??'—'} de 5 usos del avatar.</span></div>
+   <div><b>Escena 15</b><span>Tu prompt: ${S.format?FMT[S.format][0]:'—'}${S.tema?' sobre '+esc(S.tema):''}.</span></div>
+  </div>
+  <div class="theory"><p class="eyebrow">Para llevarse</p>
+   <p><b>1.</b> Lo que enseña es la pregunta, no el aparato.</p>
+   <p><b>2.</b> En vivo o grabada, cada 8 a 10 minutos el público tiene que hacer algo.</p>
+   <p><b>3.</b> La IA arma el envase; la medicina y la honestidad las ponés vos.</p></div>
+  ${clip('C16')}
+  <details><summary>Referencias</summary><p class="cite">Freeman S, et al. Proc Natl Acad Sci U S A. 2014;111(23):8410-5 · Grzeskowiak LE, et al. J Contin Educ Health Prof. 2015;35(4):261-9 · Larsen DP, et al. Med Educ. 2013;47(7):674-82 · Cook DA, et al. Acad Med. 2010;85(10):1589-602 · Reichert M, et al. JMIR Form Res. 2026;10:e90037 · Siddique H, Maweni R. Cureus. 2025;17(10):e94230 · Jain A, Merchant Y. Oral Maxillofac Surg. 2026;30(1) · Blatchford O, et al. Lancet. 2000;356:1318-21 · Laine L, et al. Am J Gastroenterol. 2021;116(5):899-917 · Gralnek IM, et al. Endoscopy. 2021;53(3):300-32 · Lau JYW, et al. N Engl J Med. 2020;382(14):1299-308.</p></details>
+  <div class="row"><button class="btn ghost" type="button" onclick="location.reload()">Volver a jugar</button></div></section>`; });
+
+function render(){
+  const s=SC[S.i]; let html='';
+  SC.forEach((x,j)=>{ if(j>0&&SC[j-1].act!==x.act) html+='<i class="gap"></i>'; html+=`<i class="${j<S.i?'done':j===S.i?'on':''}"></i>`; });
+  $('dots').innerHTML=html;
+  const elapsed=SC.slice(0,S.i).reduce((a,x)=>a+x.min,0), total=SC.reduce((a,x)=>a+x.min,0);
+  $('where').textContent=`${ACTS[s.act]} · ${S.i+1}/${SC.length} · min ${elapsed}–${elapsed+s.min} de ${total}`;
+  stage.innerHTML=s.html(); if(s.after) s.after();
+}
+render();
+</script>
