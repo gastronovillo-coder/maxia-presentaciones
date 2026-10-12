@@ -121,6 +121,7 @@ function clip(id){
   if(VIDEO.yt && c.start!=null){ const e=c.end!=null?`&end=${c.end}`:''; return `<div class="clip"><iframe src="https://www.youtube-nocookie.com/embed/${esc(VIDEO.yt)}?start=${c.start}${e}&rel=0&modestbranding=1" title="${esc(c.titulo)}" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`; }
   if(c.yt) return `<div class="clip"><iframe src="https://www.youtube-nocookie.com/embed/${esc(c.yt)}?rel=0&modestbranding=1" title="${esc(c.titulo)}" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
   if(c.mp4) return `<div class="clip"><video src="${esc(c.mp4)}" controls playsinline preload="metadata"></video></div>`;
+  if(!new URLSearchParams(location.search).has('guion')) return '';
   return `<div class="clip" role="img" aria-label="Video: ${esc(c.titulo)}"><div class="ph"><div class="play"></div></div><span class="tag">VIDEO ${id} · ${c.dur} · ${esc(c.titulo)}</span></div><details><summary>Guion de este video (lo que dice el Dr.)</summary><p class="muted" style="margin-top:8px">${esc(c.guion)}</p></details>`;
 }
 function theory(title, body, cite){ return `<div class="theory"><p class="eyebrow">Fundamento</p><h3>${title}</h3><p>${body}</p>${cite?`<p class="cite">${cite}</p>`:''}</div>`; }
